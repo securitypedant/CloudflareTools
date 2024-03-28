@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block title %}My Site{% endblock %}
+{% block content %}
+<div class="container-fluid py-2">
+    <h1>This is a very simple python app</h1>
+    <p>Today's date is {{ date }}</p>
+    <h2>My favorite colors</h2>
+    <ul>
+        {% for color in favcolors %}
+            <li>{{ color }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
