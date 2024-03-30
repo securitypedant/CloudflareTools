@@ -4,6 +4,8 @@
 
 ## TODO
 
-- Build basic UX
+- Build basic UX including admin
+- Implement scheduler
+ - https://flask.palletsprojects.com/en/2.3.x/patterns/celery/
 - Build Dynamic DNS feature
 - Build ability to keep a Zero Trust list updated with our internet IP
