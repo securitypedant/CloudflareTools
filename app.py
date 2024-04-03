@@ -1,6 +1,6 @@
 from flask import Flask
 
-from lib.ux import home, test
+from modules.ux import home, test
 
 app = Flask(__name__)
 # Details on the Secret Key: https://flask.palletsprojects.com/en/1.1.x/config/#SECRET_KEY
