@@ -1,6 +1,6 @@
 from flask import render_template
-from lib.cloudflare import create_update_dns_record
-from lib.iplookup import get_my_ip_data
+from modules.cloudflare import create_update_dns_record
+from modules.iplookup import get_my_ip_data
 
 def home():
     return render_template('home.html')

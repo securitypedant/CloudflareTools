@@ -7,16 +7,11 @@ def get_cf_api():
     client = Cloudflare(api_token=os.environ.get('CF_API_TOKEN'))
     return client
 
-def set_dyndns_domain(domain_list, ip):
-    pass
-
 def create_update_dns_record(fqdn, ip, type='A'):
     cf_api = get_cf_api()
 
-    # Split the domain name into its components
+    # Split the domain name into its components, remove the hostname and just get the domain
     parts = fqdn.split(".")
-
-    # Remove the hostname from the fqdn and just get the domain
     domain_name = ".".join(parts[1:])
 
     # Create or update a DNS record in Cloudflare.
@@ -30,20 +25,20 @@ def create_update_dns_record(fqdn, ip, type='A'):
             records = zone_records.result
             for record in records:
                 if record.name == fqdn:
-                    # Record already exists. Update it if the ip is different.
+                    # Record already exists. Update if the ip is different.
                     if record.content != ip:
                         cf_api.dns.records.update(zone_id=zone.id,
                                                   content=ip
                                         )
-                else:
-                    # No record exists, let's create it.
-                    cf_api.dns.records.create(zone_id=zone.id,
-                                            content=ip,
-                                            name=fqdn,
-                                            type=type
-                                        )
-        else:
-            # Throw an exception that we don't have access to the domain requested.
-            pass
-
-    return ""
+                    break
+            else:
+                # No record exists, let's create it.
+                cf_api.dns.records.create(zone_id=zone.id,
+                                        content=ip,
+                                        name=fqdn,
+                                        type=type
+                                    )
+            break
+    else:
+        # We did not find the domain we are looking for.
+        raise ValueError(f'Domain {domain_name} not found')
