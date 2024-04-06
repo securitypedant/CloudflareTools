@@ -3,7 +3,6 @@ from cloudflare import Cloudflare
 import os
 
 def get_cf_api():
-    # client = Cloudflare(api_key=os.environ.get('CF_API_TOKEN'))
     client = Cloudflare(api_token=os.environ.get('CF_API_TOKEN'))
     return client
 
@@ -27,7 +26,8 @@ def create_update_dns_record(fqdn, ip, type='A'):
                 if record.name == fqdn:
                     # Record already exists. Update if the ip is different.
                     if record.content != ip:
-                        cf_api.dns.records.update(zone_id=zone.id,
+                        cf_api.dns.records.update(dns_record_id=record.id,
+                                                  zone_id=zone.id,
                                                   content=ip
                                         )
                     break

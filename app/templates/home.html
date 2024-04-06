@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block title %}Cloudflare Tools{% endblock %}
+{% block content %}
+<div class="container pt-3">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Dynamic DNS</h5>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Configuration</h6>
+                <p class="card-text">
+                    <ul>Date - 192.168.1.1</ul>
+                </p>
+              </div>
+        </div>      
+      </div>
+      <div class="col-md-6 p-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Current Connection Details</h5>
+                <h6 class="card-subtitle mb-2 text-body-secondary">{{ current_ip_data['query'] }}</h6>
+                <p class="card-text">
+                    <ul>
+                        {% for key, value in current_ip_data.items() %}
+                            <li><strong>{{ key }}:</strong> {{ value }}</li>
+                        {% endfor %}
+                    </ul>
+                </p>
+              </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">History</h5>
+                <p class="card-text">
+                    <ul>Date - 192.168.1.1</ul>
+                </p>
+              </div>
+        </div>        
+      </div>
+    </div>
+  </div>
+{% endblock %}

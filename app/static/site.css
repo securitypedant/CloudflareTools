@@ -1,0 +1,5 @@
+.navbar-logo {
+    width: 40px; /* Adjust this value according to your design */
+    height: auto; /* This maintains the aspect ratio */
+    margin-right: 10px; /* Optional: Add some spacing between the logo and brand name */
+  }
