@@ -2,6 +2,10 @@ import json
 
 from requests import get
 
+def get_current_ip():
+    data = get_my_ip_data()
+    return data['query']
+
 def get_my_ip_data():
     # Use https://ipapi.co/
     # FIXME: This API is free up to 1,000 lookups a month. Need to handle errors.

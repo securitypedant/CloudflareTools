@@ -9,7 +9,7 @@ from modules.jobs import update_ip_data
 app = create_app()
 
 # Routes
-app.add_url_rule('/', view_func=home)
+app.add_url_rule('/', view_func=home, methods=['GET', 'POST'])
 app.add_url_rule('/test', view_func=test)
 
 
@@ -18,8 +18,8 @@ app.add_url_rule('/test', view_func=test)
 app.secret_key = 'BAD_SECRET_KEY_CHANGE_ME'
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=update_ip_data, trigger="interval", seconds=60)
-scheduler.start()
+# scheduler.add_job(func=update_ip_data, trigger="interval", seconds=60)
+# scheduler.start()
 
 # Shut down the scheduler when exiting the app
 atexit.register(lambda: scheduler.shutdown())

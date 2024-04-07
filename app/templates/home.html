@@ -8,10 +8,45 @@
             <div class="card-body">
                 <h5 class="card-title">Dynamic DNS</h5>
                 <h6 class="card-subtitle mb-2 text-body-secondary">Configuration</h6>
+                {% if dns_config %}
                 <p class="card-text">
                     <ul>Date - 192.168.1.1</ul>
                 </p>
-              </div>
+              {% else %}
+                <p>Create a new Dynamic DNS entry</p>
+                <form method="POST" action="/" class="form-inline">
+                    <div class="input-group">
+                        <div class="form-floating">
+                            <input type="text" id="hostname" name="hostname" class="form-control" value="">
+                            <label for="hostname">Hostname</label>
+                        </div>
+                        <div class="form-floating">
+                            <select name="domain-select" id="domain-select" class="form-control">
+                                {% for name in zone_names %}
+                                    <option value="{{ name }}">{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="domain-select">Domain</label>
+                        </div>
+                        <button type="submit" name="add-button" id="add-button" class="btn btn-primary ml-2">Add</button>
+                    </div>
+                </form>
+                {% if existing_dyndns_entries %}
+                    <p class="pt-3">Managed Dynamic DNS records</p>
+                    <form method="POST" action="/">
+                    <ul class="list-group">
+                        {% for record in existing_dyndns_entries %}
+                            <li class="list-group-item">{{ record.name }}<button id="delete-button" name="delete-button" class="btn btn-sm float-end btn-danger">Delete</button></li>
+                            <input type="hidden" name="delete-zone-id" value="{{ record.id }}">
+                            <input type="hidden" name="delete-hostname" value="{{ record.name }}">
+                        {% endfor %}
+                    </ul>
+                    </form>
+                {% else %}
+                <p class="pt-3">No existing entries</p>
+                {% endif %}  
+              {% endif %}
+            </div>
         </div>      
       </div>
       <div class="col-md-6 p-3">
