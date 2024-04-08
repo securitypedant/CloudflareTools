@@ -4,6 +4,7 @@
 
 ## TODO
 
+- Expose config to change frequency of job run, currently hard coded to every 12 hours.
 - Build ability to keep a Zero Trust list updated with our internet IP
 
 ## To build the docker image

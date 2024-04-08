@@ -17,7 +17,7 @@ app.add_url_rule('/test', view_func=test)
 app.secret_key = 'BAD_SECRET_KEY_CHANGE_ME'
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=update_ip_data, trigger="interval", seconds=60)
+scheduler.add_job(func=update_ip_data, trigger="interval", minutes=720)
 scheduler.start()
 
 # Shut down the scheduler when exiting the app
