@@ -1,9 +1,11 @@
 import json
+from datetime import datetime
 
 from flask import render_template, request
 from modules.cloudflare import get_zones, get_existing_dyndns_records, create_update_dns_record, delete_dns_record
 from modules.jobs import update_ip_data
 from modules.iplookup import get_current_ip
+from modules.tools import parse_log_file_to_array
 
 def home():
     if request.method == 'POST':
@@ -11,10 +13,12 @@ def home():
         if 'add-button' in request.form:
             hostname = request.form.get('hostname')
             domain = request.form.get('domain-select')
+            utc_now = datetime.utcnow()
+            utc_seconds = int(utc_now.timestamp())
 
             create_update_dns_record(fqdn=f'{hostname}.{domain}', 
                                      ip=get_current_ip(),
-                                     comment='DynDNS: Entry managed by CloudflareTools.',
+                                     comment=f'DynDNS: Entry managed by CloudflareTools. Last update: {utc_seconds}',
                                      type='A'
                                      )
         elif 'delete-button' in request.form:
@@ -34,6 +38,20 @@ def home():
     except FileNotFoundError:
         current_ip_data = {}
 
+    # Open the ip history log.
+    try:
+        with open('ip_history.log', 'r') as f:
+            ip_history = parse_log_file_to_array(f)
+    except:
+        ip_history = None
+
+    # Open the DynDNS history log.
+    try:
+        with open('dyndns_history.log', 'r') as f:
+            dyndns_history = parse_log_file_to_array(f)
+    except:
+        dyndns_history = None
+
     # Open the current DynDns config.
     try:
         with open('dns_config.json', 'r') as f:
@@ -49,7 +67,9 @@ def home():
                            current_ip_data=current_ip_data, 
                            dns_config=dns_config,
                            zone_names=zone_names,
-                           existing_dyndns_entries=existing_dyndns_entries
+                           existing_dyndns_entries=existing_dyndns_entries,
+                           ip_history=ip_history,
+                           dyndns_history=dyndns_history
                            )
 
 def test():

@@ -33,6 +33,7 @@
                 </form>
                 {% if existing_dyndns_entries %}
                     <p class="pt-3">Managed Dynamic DNS records</p>
+                    <p>Each hostname below will be updated with the IP address shown on the right.</p>
                     <form method="POST" action="/">
                     <ul class="list-group">
                         {% for record in existing_dyndns_entries %}
@@ -47,13 +48,36 @@
                 {% endif %}  
               {% endif %}
             </div>
-        </div>      
+        </div>
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Dynamic DNS Job History</h5>
+                <p class="card-text">
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for record in dyndns_history %}
+                        <tr>
+                            <th scope="row">{{ record[0] }}</th>
+                            <td>{{ record[1] }}</td>
+                          </tr>
+                        {% endfor %}                                 
+                        </tbody>
+                    </table>
+                </p>
+            </div>
+        </div>
       </div>
       <div class="col-md-6 p-3">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Current Connection Details</h5>
-                <h6 class="card-subtitle mb-2 text-body-secondary">{{ current_ip_data['query'] }}</h6>
+                <h6 class="card-subtitle mb-2 text-body-secondary">{{ current_ip_data['isp'] }} in {{ current_ip_data['city'] }}</h6>
                 <p class="card-text">
                     <ul>
                         {% for key, value in current_ip_data.items() %}
@@ -65,9 +89,25 @@
         </div>
         <div class="card mt-3">
             <div class="card-body">
-                <h5 class="card-title">History</h5>
+                <h5 class="card-title">ISP IP History</h5>
                 <p class="card-text">
-                    <ul>Date - 192.168.1.1</ul>
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">IP</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for record in ip_history %}
+                        <tr>
+                            <th scope="row">{{ record[0] }}</th>
+                            <td>{{ record[1] }}</td>
+                          </tr>
+                        {% endfor %}                                 
+                        </tbody>
+                    </table>
+
                 </p>
               </div>
         </div>        

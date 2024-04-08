@@ -6,6 +6,24 @@ def get_cf_api():
     client = Cloudflare(api_token=os.environ.get('CF_API_TOKEN'))
     return client
 
+def update_dyndns_records(ip):
+    cf_api = get_cf_api()
+
+    zones_result = cf_api.zones.list()
+    zones = zones_result.result
+
+    for zone in zones:
+        records_data = cf_api.dns.records.list(zone_id=zone.id)
+        records = records_data.result
+        for record in records:
+            if record.comment:
+                if record.comment.startswith('DynDNS:'):
+                        if record.content != ip:
+                            cf_api.dns.records.update(dns_record_id=record.id,
+                                                zone_id=zone.id,
+                                                content=ip
+                                    )
+
 def get_zones():
     cf_api = get_cf_api()
     zones = cf_api.zones.list() 
