@@ -2,6 +2,8 @@ import json
 import logging
 import logging.handlers as handlers
 
+from flask import current_app
+
 from datetime import datetime
 from modules.iplookup import get_ip_data, get_last_ip_data, update_ip_history
 from modules.cloudflare import update_dyndns_records
@@ -59,3 +61,10 @@ def check_ip_data():
     # Write to file if our IP has changed since the last check.
     with open('ip_data.json', 'w') as f:
         json.dump(ip_data, f)
+
+# Function to reschedule the job
+def reschedule_sync_job(new_interval_minutes):
+    app = current_app
+    with app.app_context():
+        sync_job = current_app.sync_job
+    sync_job.reschedule(trigger="interval", minutes=int(new_interval_minutes))

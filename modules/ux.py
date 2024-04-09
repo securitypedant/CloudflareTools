@@ -3,7 +3,7 @@ from datetime import datetime
 
 from flask import render_template, request
 from modules.cloudflare import get_zones, get_existing_dyndns_records, create_update_dns_record, delete_dns_record
-from modules.jobs import update_ip_data
+from modules.jobs import update_ip_data, reschedule_sync_job
 from modules.iplookup import get_current_ip
 from modules.tools import parse_log_file_to_array
 
@@ -29,6 +29,21 @@ def home():
 
             zone_id = request.form.get('delete-zone-id')
             delete_dns_record(zone_id, domain_name)
+        
+        elif 'update-frequency-button' in request.form:
+            frequency = request.form.get('frequency')
+
+            config_data = {
+                "sync_time": int(frequency)
+            }
+
+            # Write to file if our IP has changed since the last check.
+            with open('dns_config.json', 'w') as f:
+                json.dump(config_data, f)
+
+            # Update the job timeframe.
+            reschedule_sync_job(frequency)
+
 
     # Open the latest information about the internet config.
     try:
@@ -57,7 +72,9 @@ def home():
         with open('dns_config.json', 'r') as f:
             dns_config = json.load(f)
     except:
-        dns_config = None
+        dns_config = {
+            "sync_time": 60
+        }
 
     zones = get_zones()
     existing_dyndns_entries = get_existing_dyndns_records()

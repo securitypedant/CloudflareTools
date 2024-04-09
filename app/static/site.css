@@ -3,3 +3,16 @@
     height: auto; /* This maintains the aspect ratio */
     margin-right: 10px; /* Optional: Add some spacing between the logo and brand name */
   }
+
+  /* Style for the arrow */
+  .arrow::before {
+    content: "\f078"; /* Unicode for the right arrow */
+    font-family: "Font Awesome 5 Free"; /* Font Awesome CSS class */
+    display: inline-block;
+    margin-right: 6px; /* Adjust as needed */
+    transition: transform 0.3s;
+  }
+  /* Rotate the arrow when the collapse is open */
+  .collapse.show + .arrow::before {
+    transform: rotate(90deg);
+  }
