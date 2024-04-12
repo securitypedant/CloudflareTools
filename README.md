@@ -5,7 +5,7 @@
 
 ## TODO
 
-- Expose config to change frequency of job run, currently hard coded to every 12 hours.
+- Add button to run update job immediately.
 - Build ability to keep a [Zero Trust list](https://developers.cloudflare.com/api/operations/zero-trust-lists-update-zero-trust-list) updated with our internet IP
 - Keep IP address in [Proxy Endpoint](https://developers.cloudflare.com/api/operations/zero-trust-gateway-proxy-endpoints-update-proxy-endpoint)
 - Include some version numbering in the UX up to date.
