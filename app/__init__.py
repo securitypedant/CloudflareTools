@@ -1,6 +1,9 @@
-from flask import Flask
 import os
 import sys
+
+from flask import Flask
+
+from modules.jobs import update_ip_data
 
 def create_app():
 
@@ -14,7 +17,11 @@ def create_app():
     else:
         # We don't have an API token set.
         print("Environment variable for API token is not set.")
+        print("Please set CF_API_TOKEN with an API token.")
         sys.exit(1)
+
+    if not os.path.exists('ip_data.json'):
+        update_ip_data()
 
     return app
 
