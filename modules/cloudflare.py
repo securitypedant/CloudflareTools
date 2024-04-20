@@ -21,7 +21,9 @@ def update_dyndns_records(ip):
                         if record.content != ip:
                             cf_api.dns.records.update(dns_record_id=record.id,
                                                 zone_id=zone.id,
-                                                content=ip
+                                                content=ip,
+                                                type=record.type,
+                                                name=record.name
                                     )
 
 def get_zones():
@@ -86,9 +88,10 @@ def create_update_dns_record(fqdn, ip, comment, type='A'):
                     # Record already exists. Update if the ip is different.
                     if record.content != ip:
                         cf_api.dns.records.update(dns_record_id=record.id,
-                                                  zone_id=zone.id,
-                                                  content=ip,
-                                                  comment=comment
+                                                zone_id=zone.id,
+                                                content=ip,
+                                                type=record.type,
+                                                name=record.name
                                         )
                     break
             else:

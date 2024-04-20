@@ -1,0 +1,180 @@
+{% extends "layout.html" %}
+{% block title %}Cloudflare Tools{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+{% endblock %}
+{% block content %}
+<style>
+  #map { height: 200px; }
+</style>
+<div class="container pt-3">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Dynamic DNS</h5>
+          <h6 class="card-subtitle mb-2 text-body-secondary">Configuration</h6>
+          <hr>
+          <div class="row">
+            <div class="col-md-6">
+              <p>This tool will check if your public IP changes and update hostnames below.</p>
+            </div>
+            <div class="col-md-6">
+              <form method="POST" action="{{ url_for('ddns_ux') }}" class="form-inline">
+                <div class="input-group">
+                  <div class="form-floating">
+                    <input type="text" id="frequency" name="frequency" class="form-control" value="{{ config['sync_time'] }}">
+                    <label for="frequency">Frequency / minutes</label>
+                  </div>
+                  <button type="submit" name="update-frequency-button" id="update-frequency-button" class="btn btn-primary ml-2">Update</button>
+                </div>                  
+              </form>
+            </div>
+          </div>
+          <hr>
+          <p class="mt-2">Create a new Dynamic DNS hostname</p>
+          <form method="POST" action="{{ url_for('ddns_ux') }}" class="form-inline">
+            <div class="input-group">
+              <div class="form-floating">
+                <input type="text" id="hostname" name="hostname" class="form-control" value="">
+                <label for="hostname">Hostname</label>
+              </div>
+              <div class="form-floating">
+                <select name="domain-select" id="domain-select" class="form-control">
+                  {% for name in zone_names %}
+                    <option value="{{ name }}">{{ name }}</option>
+                  {% endfor %}
+                </select>
+                <label for="domain-select">Domain</label>
+              </div>
+              <button type="submit" name="add-button" id="add-button" class="btn btn-primary ml-2">Add</button>
+            </div>
+          </form>
+          {% if existing_dyndns_entries %}
+            <p class="pt-3">Existing managed Dynamic DNS records</p>
+            <form method="POST" action="{{ url_for('ddns_ux') }}">
+              <ul class="list-group">
+                {% for record in existing_dyndns_entries %}
+                  <li class="list-group-item">{{ record.name }}<button id="delete-button" name="delete-button" class="btn btn-sm float-end btn-danger">Delete</button></li>
+                  <input type="hidden" name="delete-zone-id" value="{{ record.id }}">
+                  <input type="hidden" name="delete-hostname" value="{{ record.name }}">
+                {% endfor %}
+              </ul>
+            </form>
+          {% else %}
+            <p class="pt-3">No existing entries</p>
+          {% endif %}  
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">  
+      <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Current Connection Details</h5>
+            <h6 class="card-subtitle mb-2 text-body-secondary">{{ current_ip_data['isp'] }} in {{ current_ip_data['city'] }}</h6>
+            <p class="card-text">
+              <ul class="list-group">
+                <li class="list-group-item"><strong>Current IP:</strong> {{ current_ip_data['query'] }}</li>
+                <li class="list-group-item"><strong>AS:</strong> {{ current_ip_data['as'] }}</li>
+                <li class="list-group-item"><strong>Connection location:</strong> {{ current_ip_data['city'] }}, {{ current_ip_data['zip'] }}, {{ current_ip_data['regionName'] }}, {{ current_ip_data['country'] }}</li>
+                <li class="list-group-item"><strong>Connection timezone:</strong> {{ current_ip_data['timezone'] }}</li>
+                <li class="list-group-item"><strong>Lat / Lon:</strong> {{ current_ip_data['lat'] }} / {{ current_ip_data['lon'] }}
+                  <div class="mt-2" id="map"></div>
+                </li>
+              </ul>
+            </p>
+            <form method="POST" action="{{ url_for('ddns_ux') }}" class="text-center">
+              <button type="submit" name="update-ipdata-button" id="update-ipdata-button" class="btn btn-primary ml-2">Update Now</button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="accordion mt-3" id="accordionExample">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDNSHistory" aria-expanded="true" aria-controls="collapseOne">
+              Dynamic DNS Job History
+            </button>
+          </h2>
+          <div id="collapseDNSHistory" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for record in dyndns_history %}
+                <tr>
+                    <th scope="row">{{ record[0] }}</th>
+                    <td>{{ record[1] }}</td>
+                  </tr>
+                {% endfor %}                                 
+                </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </div> 
+    </div>
+    <div class="col-md-6">
+      <div class="accordion mt-3" id="accordionIPHistory">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIPHistory" aria-expanded="false" aria-controls="collapseOne">
+              ISP IP History
+            </button>
+          </h2>
+          <div id="collapseIPHistory" class="accordion-collapse collapse" data-bs-parent="#accordionIPHistory">
+            <div class="accordion-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">IP</th>
+                    <th scope="col">ISP</th>
+                    <th scope="col">Location</th>
+                  </tr>
+                </thead>
+                <tbody>                
+                {% for record in ip_history %}
+                {% if record %}
+                <tr>
+                    <th scope="row">{{ record[0] }}</th>
+                    <td>{{ record[1] | json_query("query") }}</td>
+                    <td>{{ record[1] | json_query("isp") }}</td>
+                    <td>{{ record[1] | json_query("country") }}, {{ record[1] | json_query("city") }}</td>
+                  </tr>
+                  {% endif %}    
+                  {% endfor %}          
+                </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+    </div>      
+  </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  var lat = {{ current_ip_data['lat'] }};
+  var lon = {{ current_ip_data['lon'] }};
+
+  // Initialize the map
+  var map = L.map('map').setView([lat, lon], 6);
+
+  // Add a tile layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  // Add a marker with the given coordinates
+  L.marker([lat, lon]).addTo(map)
+      .openPopup();
+</script>
+{% endblock %}

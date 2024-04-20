@@ -5,7 +5,7 @@
 
 ## TODO
 
-- Add button to run update job immediately.
+- Add a map to show connection location.
 - Build ability to keep a [Zero Trust list](https://developers.cloudflare.com/api/operations/zero-trust-lists-update-zero-trust-list) updated with our internet IP
 - Keep IP address in [Proxy Endpoint](https://developers.cloudflare.com/api/operations/zero-trust-gateway-proxy-endpoints-update-proxy-endpoint)
 - Include some version numbering in the UX up to date.

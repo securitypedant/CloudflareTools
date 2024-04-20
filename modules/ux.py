@@ -1,13 +1,16 @@
 import json
 from datetime import datetime
 
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for
 from modules.cloudflare import get_zones, get_existing_dyndns_records, create_update_dns_record, delete_dns_record
-from modules.jobs import update_ip_data, reschedule_sync_job
+from modules.jobs import ddns_sync_job, reschedule_sync_job
 from modules.iplookup import get_current_ip
 from modules.tools import parse_log_file_to_array
 
 def home():
+    return render_template('home.html')
+
+def ddns_ux():
     if request.method == 'POST':
         # Deal with a form post form the home page.
         if 'add-button' in request.form:
@@ -21,6 +24,9 @@ def home():
                                      comment=f'DynDNS: Entry managed by CloudflareTools. Last update: {utc_seconds}',
                                      type='A'
                                      )
+        elif 'update-ipdata-button' in request.form:
+            ddns_sync_job()
+
         elif 'delete-button' in request.form:
             # Delete the DNS entry.
             hostname = request.form.get('delete-hostname')
@@ -37,12 +43,13 @@ def home():
                 "sync_time": int(frequency)
             }
 
-            # Write to file if our IP has changed since the last check.
-            with open('dns_config.json', 'w') as f:
+            with open('config.json', 'w') as f:
                 json.dump(config_data, f)
 
             # Update the job timeframe.
             reschedule_sync_job(frequency)
+
+        return redirect(url_for('ddns_ux'))
 
 
     # Open the latest information about the internet config.
@@ -69,10 +76,10 @@ def home():
 
     # Open the current DynDns config.
     try:
-        with open('dns_config.json', 'r') as f:
-            dns_config = json.load(f)
+        with open('config.json', 'r') as f:
+            config = json.load(f)
     except:
-        dns_config = {
+        config = {
             "sync_time": 60
         }
 
@@ -80,9 +87,9 @@ def home():
     existing_dyndns_entries = get_existing_dyndns_records()
     zone_names = [zone.name for zone in zones]
 
-    return render_template('home.html', 
+    return render_template('dyndns.html', 
                            current_ip_data=current_ip_data, 
-                           dns_config=dns_config,
+                           config=config,
                            zone_names=zone_names,
                            existing_dyndns_entries=existing_dyndns_entries,
                            ip_history=ip_history,
@@ -90,7 +97,7 @@ def home():
                            )
 
 def test():
-    update_ip_data()
+    ddns_sync_job()
     # create_update_dns_record('test.thorpevillage.com', ip_data['query'], 'A')
 
     return "Success"

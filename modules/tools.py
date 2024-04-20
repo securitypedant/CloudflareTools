@@ -1,4 +1,20 @@
-import datetime
+import json
+
+def get_service_status(service_name):
+    # Return True if the service is enabled, False if not.
+    try:
+        with open('config.json', 'r') as f:
+            config = json.load(f)
+        service_status = config[service_name]['status']
+    except:
+        config = { 
+                service_name: { "status": False,
+                                "sync_period": 360
+                               }
+            }
+        service_status = False
+
+    return service_status, config
 
 def parse_log_file_to_array(file):
     log_data = []

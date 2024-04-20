@@ -3,7 +3,7 @@ import sys
 
 from flask import Flask
 
-from modules.jobs import update_ip_data
+from modules.jobs import ddns_sync_job
 
 def create_app():
 
@@ -21,7 +21,7 @@ def create_app():
         sys.exit(1)
 
     if not os.path.exists('ip_data.json'):
-        update_ip_data()
+        ddns_sync_job()
 
     return app
 

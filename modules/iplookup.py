@@ -14,7 +14,7 @@ logHandler.setFormatter(formatter)
 logger.addHandler(logHandler)
 
 def update_ip_history(ip_data):
-    logger.info(f"{ip_data['query']}")
+    logger.info(f"{json.dumps(ip_data)}")
 
 def get_last_ip_data():
     try:
