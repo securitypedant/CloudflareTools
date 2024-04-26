@@ -33,4 +33,3 @@ def create_app():
             json.dump(default_config, f, indent=4)
     
     return app
-
