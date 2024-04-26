@@ -1,6 +1,7 @@
 
 $(document).ready(function(){
-    $('#ddns-sync').click(function(){
+    {% for key, service in config.items() %}
+    $('#{{ service.name }}').click(function(){
         var buttonName = $(this).attr('name');
         $.ajax({
             type: 'POST',
@@ -8,13 +9,14 @@ $(document).ready(function(){
             data: { buttonName: buttonName },
             success: function(response) {
                 if (response.enabled) {
-                    $('#ddns-sync').removeClass('btn-success').addClass('btn-secondary').text('Disabled');
+                    $('#{{ service.name }}').removeClass('btn-secondary').addClass('btn-success').text('Enabled');
                     // You can also disable the button if you want:
                     // $('#status-btn-ddns').prop('disabled', true);
                 } else {
-                    $('#ddns-sync').removeClass('btn-secondary').addClass('btn-success').text('Enabled');
+                    $('#{{ service.name }}').removeClass('btn-success').addClass('btn-secondary').text('Disabled');
                 }
             }
         });
     });
+    {% endfor %}
 });

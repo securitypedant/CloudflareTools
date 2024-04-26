@@ -16,20 +16,26 @@
                     </li>
                     {# Dynamic DNS option #}
                     <li class="list-group-item">
-                        <div class="row">
+                        {% for key, service in config.items() %}
+                        <div class="row pt-2">
                             <div class="col-1">
-                                <button type="button" class="btn btn-success" id="ddns-sync" name="ddns-sync">Enabled</button>
+                                {% if service.status %}
+                                <button type="button" class="btn btn-success" id="{{ service.name }}" name="{{ service.name }}">Enabled</button>
+                                {% else %}
+                                <button type="button" class="btn btn-secondary" id="{{ service.name }}" name="{{ service.name }}">Disabled</button>
+                                {% endif %}
                             </div>
                             <div class="col-2 d-flex align-items-center">
-                                <div class="d-flex align-items-center">Dynamic DNS</div>
+                                <div class="d-flex align-items-center">{{ service.title }}</div>
                             </div>
                             <div class="col-8 d-flex align-items-center">
-                                <div class="d-flex align-items-center">Synchronize the public IP address of your local internet connection with one or more DNS records.</div>
+                                <div class="d-flex align-items-center">{{ service.desc }}</div>
                             </div>
                             <div class="col-1 d-flex justify-content-end">
-                                <a href="{{ url_for('ddns_ux') }}" class="btn btn-primary">Configure</a>
+                                <a href="{{ url_for(service.stub_func) }}" class="btn btn-primary">Configure</a>
                             </div>
                         </div>
+                        {% endfor %}
                     </li>
                     {# Future option goes here #}
                 </ul>

@@ -1,20 +1,20 @@
 import json
 
-def get_service_status(service_name):
-    # Return True if the service is enabled, False if not.
+def save_config(config):
+    try:
+        with open('config.json', 'w') as f:
+            json.dump(config, f, indent=4)
+    except:
+        raise
+
+def get_config():
     try:
         with open('config.json', 'r') as f:
             config = json.load(f)
-        service_status = config[service_name]['status']
     except:
-        config = { 
-                service_name: { "status": False,
-                                "sync_period": 360
-                               }
-            }
-        service_status = False
+        raise        
 
-    return service_status, config
+    return config
 
 def parse_log_file_to_array(file):
     log_data = []

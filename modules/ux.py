@@ -1,14 +1,18 @@
 import json
 from datetime import datetime
 
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, current_app
 from modules.cloudflare import get_zones, get_existing_dyndns_records, create_update_dns_record, delete_dns_record
-from modules.jobs import ddns_sync_job, reschedule_sync_job
+from modules.services import reschedule_sync_job
 from modules.iplookup import get_current_ip
-from modules.tools import parse_log_file_to_array
+from modules.tools import parse_log_file_to_array, get_config
+from modules.jobs import ddns_sync
 
 def home():
-    return render_template('home.html')
+    return render_template(
+        'home.html',
+        config=get_config()
+        )
 
 def ddns_ux():
     if request.method == 'POST':
@@ -25,7 +29,7 @@ def ddns_ux():
                                      type='A'
                                      )
         elif 'update-ipdata-button' in request.form:
-            ddns_sync_job()
+            ddns_sync()
 
         elif 'delete-button' in request.form:
             # Delete the DNS entry.
@@ -38,16 +42,17 @@ def ddns_ux():
         
         elif 'update-frequency-button' in request.form:
             frequency = request.form.get('frequency')
+            
+            with open('config.json', 'r') as file:
+                config_data = json.load(file)
 
-            config_data = {
-                "sync_time": int(frequency)
-            }
+            config_data['ddns_sync']['sync_period'] = frequency
 
             with open('config.json', 'w') as f:
-                json.dump(config_data, f)
+                json.dump(config_data, f, indent=4)
 
             # Update the job timeframe.
-            reschedule_sync_job(frequency)
+            reschedule_sync_job(current_app, 'ddns_sync', frequency)
 
         return redirect(url_for('ddns_ux'))
 
@@ -75,13 +80,8 @@ def ddns_ux():
         dyndns_history = None
 
     # Open the current DynDns config.
-    try:
-        with open('config.json', 'r') as f:
-            config = json.load(f)
-    except:
-        config = {
-            "sync_time": 60
-        }
+    with open('config.json', 'r') as f:
+        config = json.load(f)
 
     zones = get_zones()
     existing_dyndns_entries = get_existing_dyndns_records()
@@ -95,9 +95,3 @@ def ddns_ux():
                            ip_history=ip_history,
                            dyndns_history=dyndns_history
                            )
-
-def test():
-    ddns_sync_job()
-    # create_update_dns_record('test.thorpevillage.com', ip_data['query'], 'A')
-
-    return "Success"

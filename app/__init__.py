@@ -1,12 +1,12 @@
 import os
 import sys
+import json
 
 from flask import Flask
 
-from modules.jobs import ddns_sync_job
+from modules.jobs import ddns_sync
 
 def create_app():
-
     app = Flask(__name__)
     env_cf_api_token = os.environ.get('CF_API_TOKEN')
 
@@ -21,7 +21,16 @@ def create_app():
         sys.exit(1)
 
     if not os.path.exists('ip_data.json'):
-        ddns_sync_job()
+        ddns_sync()
 
+    if not os.path.exists('config.json'):
+        # If no config exists, create one.
+        default_config = {
+                            "ddns_sync": {"status": False, "sync_period": 360, "name": "ddns_sync", "title": "Dynamic DNS", "desc": "Dynamic DNS sync", "stub_func": "ddns_ux"}
+                          }
+
+        with open('config.json', 'w') as f:
+            json.dump(default_config, f, indent=4)
+    
     return app
 

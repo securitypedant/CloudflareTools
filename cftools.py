@@ -2,13 +2,14 @@ import atexit
 import json
 
 from app import create_app
-from modules.ux import home, test, ddns_ux
+from modules.ux import home, ddns_ux
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from modules.jobs import initialize_jobs
+from modules.services import initialize_jobs
 from modules.ajax import ajax_update_service_status
+from modules.tools import get_config
 
-from flask import current_app
+from flask import render_template
 
 app = create_app()
 
@@ -17,7 +18,11 @@ app.add_url_rule('/', view_func=home, methods=['GET', 'POST'])
 app.add_url_rule('/ddns', view_func=ddns_ux, methods=['GET', 'POST'])
 
 app.add_url_rule('/ajax/update_service_status', view_func=ajax_update_service_status, methods=['POST'])
-app.add_url_rule('/test', view_func=test)
+
+@app.route('/static/home.js')
+def script():
+    # Render the JavaScript file with Jinja variables
+    return render_template('home.js', config=get_config())
 
 # Details on the Secret Key: https://flask.palletsprojects.com/en/1.1.x/config/#SECRET_KEY
 # NOTE: The secret key is used to cryptographically-sign the cookies used for storing the session data.
@@ -30,17 +35,8 @@ def json_query_filter(json_string, key):
 
 app.jinja_env.filters['json_query'] = json_query_filter
 
-# Get current sync timeframe if it exists.
-try:
-    with open('config.json', 'r') as f:
-        config = json.load(f)
-except:
-    config = {
-        "sync_time": 60
-    }
-
 scheduler = BackgroundScheduler()
-initialize_jobs(app, scheduler, config)
+initialize_jobs(app, scheduler)
 
 # Shut down the scheduler when exiting the app
 atexit.register(lambda: scheduler.shutdown())
