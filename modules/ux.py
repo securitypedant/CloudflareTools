@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from flask import render_template, request, redirect, url_for, current_app
-from modules.cloudflare import get_zones, get_existing_dyndns_records, create_update_dns_record, delete_dns_record
+from modules.cf import get_zones, get_existing_dyndns_records, create_update_dns_record, delete_dns_record
 from modules.services import reschedule_sync_job
 from modules.iplookup import get_current_ip
 from modules.tools import parse_log_file_to_array, get_config

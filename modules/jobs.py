@@ -2,7 +2,7 @@ import json
 import logging
 import logging.handlers as handlers
 
-from modules.cloudflare import update_dyndns_records
+from modules.cf import update_dyndns_records
 from datetime import datetime
 from modules.iplookup import get_ip_data, get_last_ip_data, update_ip_history
 

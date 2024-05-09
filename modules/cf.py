@@ -1,6 +1,8 @@
-from cloudflare import Cloudflare
+"""Module containing all Cloudflre related functions."""
 
 import os
+
+from cloudflare import Cloudflare
 
 def get_cf_api():
     client = Cloudflare(api_token=os.environ.get('CF_API_TOKEN'))

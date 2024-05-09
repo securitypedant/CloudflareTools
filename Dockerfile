@@ -15,9 +15,6 @@ RUN pip install -r requirements.txt
 # Copy the Flask app files to the container
 COPY . .
 
-# Create the default files
-RUN echo '{ "ddns-sync": { "status": false, "sync_period": 360 } }' > config.json
-
 # Expose the Flask port
 EXPOSE 8000
 
